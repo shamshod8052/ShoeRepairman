@@ -1,18 +1,99 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .card {
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        .qr-code img {
+            width: 150px;
+            height: 150px;
+        }
+        .status {
+            font-weight: bold;
+        }
+        .status.approved {
+            color: green;
+        }
+        .status.unapproved {
+            color: red;
+        }
+    </style>
 </head>
 <body>
-    <h1>Umumiy ma'lumotlar</h1>
-    <p><strong>Order ID:</strong> {{ order.id }}</p>
-    <p><strong>Mijoz:</strong> {{ order.customer.full_name }}</p>
-    <p><strong>Status:</strong> {{ order.get_status_display }}</p>
-    <p><strong>Mahsulot haqida:</strong> {{ order.description }}</p>
-    {% if order.shoe_image %}
-        <img src="{{ order.shoe_image.url }}" alt="Shoe Image" style="width: 300px; height: auto;">
-    {% endif %}
+    <div class="container">
+        <div class="card shadow">
+            <div class="card-header text-center">
+                <h2>Order Details</h2>
+            </div>
+            <div class="card-body">
+{#                <h4>Customer Information</h4>#}
+{#                <p><strong>Name:</strong> {{ order.customer.full_name }}</p>#}
+{#                <p><strong>Phone:</strong> {{ order.customer.phone }}</p>#}
+{#                <br>#}
+                <h4>Order Information</h4>
+                <p><strong>Start Time:</strong> {{ order.start_time }}</p>
+                <p><strong>Finish Time:</strong> {{ order.finish_time }}</p>
+                <br>
+                <p><strong>Description:</strong> {{ order.description }}</p>
+                <br>
+                <h4>Order Photos</h4>
+                <div class="order-images">
+                    {% if order.photos.exists %}
+                        {% for image in order.photos.all %}
+                            <br>
+                            <img src="{{ image.photo.url }}" alt="Order Image" class="img-thumbnail">
+                            <br>
+                        {% endfor %}
+                    {% else %}
+                        <p>No Photos Uploaded</p>
+                    {% endif %}
+                </div>
+{#                <br>#}
+{#                <h4>Total Price</h4>#}
+{#                <p><strong>Amount:</strong> {{ order.total_price_display }}</p>#}
+{#                <br>#}
+{#                <h4>Documents</h4>#}
+{#                <p>#}
+{#                    <strong>QR Code:</strong>#}
+{#                    {% if order.qr_code %}#}
+{#                        <a href="{{ order.qr_code.url }}" download>#}
+{#                            <img src="{{ order.qr_code.url }}" alt="QR Code" class="img-thumbnail qr-code">#}
+{#                        </a>#}
+{#                    {% else %}#}
+{#                        No QR Code Available#}
+{#                    {% endif %}#}
+{#                </p>#}
+{#                <br>#}
+{#                <p>#}
+{#                    <strong>Contract:</strong>#}
+{#                    {% if order.contract %}#}
+{#                        <a href="{{ order.contract.url }}" class="btn btn-primary" download>Download Contract</a>#}
+{#                    {% else %}#}
+{#                        No Contract Uploaded#}
+{#                    {% endif %}#}
+{#                </p>#}
+{#                <br>#}
+{#                <h4>Associated Works</h4>#}
+{#                <ul>#}
+{#                    {% for work in order.works.all %}#}
+{#                        <li>{{ work.worker.full_name }} - {{ work.get_status_display }}</li>#}
+{#                    {% endfor %}#}
+{#                </ul>#}
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

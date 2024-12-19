@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from django.utils.translation import gettext_lazy as _
 
 from environs import Env
 
@@ -33,13 +34,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'Admin',
+    'Person',
     'Product',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -60,6 +62,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',
             ],
         },
     },
@@ -110,13 +113,25 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Tashkent'
 
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
+
+# Specify available languages
+LANGUAGES = [
+    ('en', _('English')),
+    ('uz', _('Uzbek')),
+    ('ru', _('Russian')),
+]
+
+# Path to translation files
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
 
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]  # Loyiha static fayllari uchun
-STATIC_ROOT = BASE_DIR / "staticfiles"  # collectstatic uchun
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
@@ -265,5 +280,5 @@ JAZZMIN_SETTINGS = {
     # override change forms on a per modeladmin basis
     "changeform_format_overrides": {"auth.user": "collapsible", "auth.group": "vertical_tabs"},
     # Add a language dropdown into the admin
-    # "language_chooser": True,
+    "language_chooser": True,
 }

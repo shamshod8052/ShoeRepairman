@@ -164,8 +164,8 @@ cython_debug/
 staticfiles/*
 !staticfiles/.gitignore
 
-Admin/migrations/*
-!Admin/migrations/__init__.py
+Person/migrations/*
+!Person/migrations/__init__.py
 Product/migrations/*
 !Product/migrations/__init__.py
 logs/*
