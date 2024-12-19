@@ -22,6 +22,7 @@ DEBUG = env.bool('DEBUG')
 ALLOWED_HOSTS = ['*']
 SITE_DOMAIN = env.str('SITE_DOMAIN')
 CSRF_TRUSTED_ORIGINS = [SITE_DOMAIN]
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800 # 50mb
 
 
 # Application definition
