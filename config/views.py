@@ -1,8 +1,10 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 
 from Product.models import Order, Work
 
 
+@login_required
 def order_detail(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     works = order.works.order_by('-status')
@@ -13,12 +15,13 @@ def order_detail(request, order_id):
 
     context = {
         'order': order, 'work': work, 'work_status': work_status,
-        'is_admin': is_admin, 'is_manager': is_manager,
+        'is_admin': is_admin, 'is_manager': is_manager, 'user': request.user,
     }
 
     return render(request, 'order_detail.html', context=context)
 
 
+@login_required
 def accept_order(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     work, created = order.works.get_or_create(worker=request.user)
@@ -28,6 +31,7 @@ def accept_order(request, order_id):
     return redirect('order_detail', order_id = order_id)
 
 
+@login_required
 def cancel_order(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     try:
@@ -40,6 +44,7 @@ def cancel_order(request, order_id):
     return redirect('order_detail', order_id = order_id)
 
 
+@login_required
 def success_order(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     try:
@@ -52,6 +57,7 @@ def success_order(request, order_id):
     return redirect('order_detail', order_id = order_id)
 
 
+@login_required
 def approve_work(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     try:
