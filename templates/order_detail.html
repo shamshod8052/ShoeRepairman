@@ -1,96 +1,112 @@
-{% load static %}
+{% load static i18n %}
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Details</title>
+    <title>{% trans "Order Details" %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: #f9f9f9;
             font-family: Arial, sans-serif;
         }
         .card {
             margin: 20px auto;
             max-width: 800px;
         }
-        .qr-code img {
-            width: 150px;
-            height: 150px;
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
         }
-        .status {
-            font-weight: bold;
+        .order-images img {
+            max-width: 100%;
+            height: auto;
+            margin: 10px 0;
         }
-        .status.approved {
-            color: green;
-        }
-        .status.unapproved {
-            color: red;
+        .language-switcher {
+            display: flex;
+            justify-content: flex-end;
+            margin: 10px;
         }
     </style>
 </head>
 <body>
+    <div class="language-switcher">
+        <form method="post" action="{% url 'set_language' %}">
+            {% csrf_token %}
+            <select name="language" onchange="this.form.submit()" class="form-select form-select-sm w-auto">
+                <option value="en" {% if LANGUAGE_CODE == 'en' %}selected{% endif %}>{% trans "English" %}</option>
+                <option value="uz" {% if LANGUAGE_CODE == 'uz' %}selected{% endif %}>{% trans "Uzbek" %}</option>
+                <option value="ru" {% if LANGUAGE_CODE == 'ru' %}selected{% endif %}>{% trans "Russian" %}</option>
+            </select>
+        </form>
+    </div>
+
     <div class="container">
         <div class="card shadow">
-            <div class="card-header text-center">
-                <h2>Order Details</h2>
+            <div class="card-header text-center bg-primary text-white">
+                <h2>{% trans "Order Details" %}</h2>
             </div>
             <div class="card-body">
-{#                <h4>Customer Information</h4>#}
-{#                <p><strong>Name:</strong> {{ order.customer.full_name }}</p>#}
-{#                <p><strong>Phone:</strong> {{ order.customer.phone }}</p>#}
-{#                <br>#}
-                <h4>Order Information</h4>
-                <p><strong>Start Time:</strong> {{ order.start_time }}</p>
-                <p><strong>Finish Time:</strong> {{ order.finish_time }}</p>
-                <br>
-                <p><strong>Description:</strong> {{ order.description }}</p>
-                <br>
-                <h4>Order Photos</h4>
-                <div class="order-images">
-                    {% if order.photos.exists %}
-                        {% for image in order.photos.all %}
-                            <br>
-                            <img src="{{ image.photo.url }}" alt="Order Image" class="img-thumbnail">
-                            <br>
-                        {% endfor %}
+                <h4>{% trans "Order Information" %}</h4>
+                <p><strong>{% trans "Start Time:" %}</strong> {{ order.received_time }}</p>
+                <p><strong>{% trans "Finish Time:" %}</strong> {{ order.submission_time }}</p>
+                <p><strong>{% trans "Description:" %}</strong> {{ order.description }}</p>
+
+                <div class="text-center mb-4">
+                    {% if is_admin or is_manager %}
+                        {% if work_status == 2 %}  {# Unapproved #}
+                            <form method="post" action="{% url 'approve_work' order.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">{% trans "Approve Work" %}</button>
+                            </form>
+                        {% else %}
+                            {% if work_status == 0 %}  {# Not Received #}
+                                <div class="alert alert-info">{% trans "Status: Not Received" %}</div>
+                            {% elif work_status == 1 %}  {# Received #}
+                                <div class="alert alert-warning">{% trans "Status: Received" %}</div>
+                            {% elif work_status == 3 %}  {# Approved #}
+                                <div class="alert alert-success">{% trans "Status: Approved" %}</div>
+                            {% endif %}
+                        {% endif %}
                     {% else %}
-                        <p>No Photos Uploaded</p>
+                        {% if work_status == null or work_status == 0 %}
+                            <form method="post" action="{% url 'accept_order' order.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success">{% trans "Accept Order" %}</button>
+                            </form>
+                        {% elif work_status == 1 %}
+                            <div class="btn-group">
+                                <form method="post" action="{% url 'cancel_order' order.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-warning">{% trans "Cancel" %}</button>
+                                </form>
+                                <form method="post" action="{% url 'success_order' order.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success">{% trans "Mark as Finished" %}</button>
+                                </form>
+                            </div>
+                        {% elif work_status == 2 %}
+                            <div class="alert alert-warning">{% trans "Work is unapproved. Waiting for review." %}</div>
+                        {% elif work_status == 3 %}
+                            <div class="alert alert-success">{% trans "Work Approved! Thank you!" %}</div>
+                        {% endif %}
                     {% endif %}
                 </div>
-{#                <br>#}
-{#                <h4>Total Price</h4>#}
-{#                <p><strong>Amount:</strong> {{ order.total_price_display }}</p>#}
-{#                <br>#}
-{#                <h4>Documents</h4>#}
-{#                <p>#}
-{#                    <strong>QR Code:</strong>#}
-{#                    {% if order.qr_code %}#}
-{#                        <a href="{{ order.qr_code.url }}" download>#}
-{#                            <img src="{{ order.qr_code.url }}" alt="QR Code" class="img-thumbnail qr-code">#}
-{#                        </a>#}
-{#                    {% else %}#}
-{#                        No QR Code Available#}
-{#                    {% endif %}#}
-{#                </p>#}
-{#                <br>#}
-{#                <p>#}
-{#                    <strong>Contract:</strong>#}
-{#                    {% if order.contract %}#}
-{#                        <a href="{{ order.contract.url }}" class="btn btn-primary" download>Download Contract</a>#}
-{#                    {% else %}#}
-{#                        No Contract Uploaded#}
-{#                    {% endif %}#}
-{#                </p>#}
-{#                <br>#}
-{#                <h4>Associated Works</h4>#}
-{#                <ul>#}
-{#                    {% for work in order.works.all %}#}
-{#                        <li>{{ work.worker.full_name }} - {{ work.get_status_display }}</li>#}
-{#                    {% endfor %}#}
-{#                </ul>#}
+
+                <h4>{% trans "Order Photos" %}</h4>
+                <div class="order-images">
+                    {% if order.photos.all %}
+                        {% for image in order.photos.all %}
+                            <img src="{{ image.photo.url }}" alt="{% trans 'Order Image' %}" class="img-thumbnail">
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">{% trans "No photos uploaded for this order." %}</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>

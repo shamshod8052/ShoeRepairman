@@ -5,9 +5,9 @@ from django.utils.translation import gettext_lazy as _
 
 class Work(models.Model):
     class Status(models.IntegerChoices):
-        NOT_RECEIVED = 0, _("❌ Not Received")
+        NOT_RECEIVED = 0, _("✉️ Not received")
         RECEIVED = 1, _("🕒 Received")
-        UNAPPROVED = 2, _("⚠️ Unapproved")
+        UNAPPROVED = 2, _("🗸 Unapproved")
         APPROVED = 3, _("✔️ Approved")
 
     order = models.ForeignKey(
@@ -17,11 +17,11 @@ class Work(models.Model):
         related_name='works'
     )
     worker = models.ForeignKey(
-        'Person.Worker',
+        'Person.CustomUser',
         verbose_name=_("Worker"),
         on_delete=models.CASCADE,
         related_name='works',
-        limit_choices_to={'is_active': True},
+        limit_choices_to={'user_type': 'worker', 'is_active': True},
     )
     status = models.IntegerField(
         _("Status"),
@@ -29,8 +29,8 @@ class Work(models.Model):
         default=Status.NOT_RECEIVED,
         editable=False
     )
-    start_time = models.DateTimeField(_("Start time"), auto_now_add=True)
-    finish_time = models.DateTimeField(_("Finish time"), null=True, blank=True, editable=False)
+    received_time = models.DateTimeField(_("Received time"), auto_now_add=True)
+    submission_time = models.DateTimeField(_("Submission time"), null=True, blank=True, editable=False)
     approve_time = models.DateTimeField(_("Approve time"), null=True, blank=True, editable=False)
 
     def received(self):
@@ -52,7 +52,7 @@ class Work(models.Model):
         self.save()
 
     def __str__(self):
-        return f"{self.worker.full_name} - {self.order.id}"
+        return f"{self.worker.get_full_name()} - {self.order.id}"
 
     class Meta:
         verbose_name = _("Work")
@@ -81,16 +81,17 @@ class Service(models.Model):
 
 class Order(models.Model):
     customer = models.ForeignKey(
-        'Person.Customer',
+        'Person.CustomUser',
         verbose_name=_('Customer'),
         on_delete=models.CASCADE,
-        related_name='orders'
+        related_name='orders',
+        limit_choices_to={'user_type': 'customer', 'is_active': True},
     )
     qr_code = models.ImageField(upload_to='qrcodes/', null=True, blank=True, editable=False)
     contract = models.FileField(upload_to='contracts/', null=True, blank=True, editable=False)
     description = models.TextField(_("Description"), null=True, blank=True)
-    start_time = models.DateTimeField(_("Start time"), default=timezone.now)
-    finish_time = models.DateTimeField(_("Finish time"))
+    received_time = models.DateTimeField(_("Received time"), default=timezone.now)
+    submission_time = models.DateTimeField(_("Submission time"))
 
     @property
     def status(self):
@@ -111,7 +112,7 @@ class Order(models.Model):
         return 0
 
     def __str__(self):
-        return f"{self.customer.full_name}"
+        return f"{self.id}"
 
     class Meta:
         verbose_name = _("Order")
@@ -130,7 +131,7 @@ class OrderService(models.Model):
                                 related_name='order_services')
 
     def __str__(self):
-        return f"{self.order.customer.full_name}"
+        return f"{self.order.customer.get_full_name()}"
 
     class Meta:
         verbose_name = _("OrderImage")
@@ -148,8 +149,8 @@ class OrderImage(models.Model):
     photo = models.ImageField(_("Photo"), upload_to='photos/')
 
     def __str__(self):
-        return f"{self.order.customer.full_name}"
+        return f"{self.order.customer.get_full_name()}"
 
     class Meta:
-        verbose_name = _("OrderImage")
-        verbose_name_plural = _("OrderImages")
+        verbose_name = _("Order photo")
+        verbose_name_plural = _("Order photos")

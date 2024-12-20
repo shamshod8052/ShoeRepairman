@@ -10,11 +10,15 @@ from . import views
 
 urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
-    path('order/<int:order_id>/', views.order_detail, name='order_detail'),
 ]
 
 urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
+    path('order/<int:order_id>/', views.order_detail, name='order_detail'),
+    path('accept_order/<int:order_id>/', views.accept_order, name='accept_order'),
+    path('cancel_order/<int:order_id>/', views.cancel_order, name='cancel_order'),
+    path('success_order/<int:order_id>/', views.success_order, name='success_order'),
+    path('approve_work/<int:order_id>/', views.approve_work, name='approve_work'),
 )
 
 

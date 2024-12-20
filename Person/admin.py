@@ -1,26 +1,23 @@
+from django.contrib.auth.admin import UserAdmin
 from django.contrib import admin
-from django.utils.html import format_html
-from django.utils.translation import gettext_lazy as _
+from .models import CustomUser
 
-from Person.models import Customer, Worker
+class CustomUserAdmin(UserAdmin):
+    model = CustomUser
+    fieldsets = (
+        (None, {'fields': ('username', 'password')}),
+        ('Personal info', {'fields': ('first_name', 'last_name', 'user_type', 'main_phone')}),
+        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+    )
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('username', 'password1', 'password2', 'user_type', 'main_phone', 'extra_phone'),
+        }),
+    )
+    list_display = ('username', 'get_full_name', 'user_type', 'is_staff', 'is_active')
+    list_filter = ('user_type', 'is_staff', 'is_active')
+    search_fields = ('username', 'first_name', 'last_name', 'main_phone', 'extra_phone')
 
-
-@admin.register(Customer)
-class CustomerAdmin(admin.ModelAdmin):
-    list_display = ("full_name", "phone", "extra_phone", "orders", "created_at")
-    search_fields = ("full_name", "phone", "extra_phone")
-    list_filter = ("created_at",)
-
-    def orders(self, obj):
-        url = f"/admin/Product/order/?customer_id__exact={obj.id}&q="
-        n = obj.orders.count()
-        return format_html(f'<a href="{url}">{_("View Orders")}({n})</a>')
-
-    orders.short_description = _("View orders")
-
-
-@admin.register(Worker)
-class WorkerAdmin(admin.ModelAdmin):
-    list_display = ("full_name", "phone", "extra_phone", "created_at")
-    search_fields = ("full_name", "phone", "extra_phone")
-    list_filter = ("created_at",)
+admin.site.register(CustomUser, CustomUserAdmin)

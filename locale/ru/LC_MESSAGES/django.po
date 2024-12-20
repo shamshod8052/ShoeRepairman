@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-18 22:00+0500\n"
+"POT-Creation-Date: 2024-12-20 14:41+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,142 +20,231 @@ msgstr ""
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\Person\models.py:6 .\Person\models.py:21
-msgid "Fullname"
+#: .\Person\models.py:15
+msgid "first name"
 msgstr ""
 
-#: .\Person\models.py:7
+#: .\Person\models.py:16
 msgid "Main phone"
 msgstr ""
 
-#: .\Person\models.py:8 .\Person\models.py:23
+#: .\Person\models.py:17
 msgid "Extra phone"
 msgstr ""
 
-#: .\Person\models.py:10 .\Person\models.py:25
-msgid "Created at"
-msgstr ""
-
-#: .\Person\models.py:16 .\Product\models.py:29
-msgid "Customer"
-msgstr ""
-
-#: .\Person\models.py:17
-msgid "Customers"
-msgstr ""
-
-#: .\Person\models.py:22
-msgid "Phone"
-msgstr ""
-
-#: .\Person\models.py:31 .\Product\models.py:105
-msgid "Worker"
-msgstr ""
-
-#: .\Person\models.py:32
-msgid "Workers"
-msgstr ""
-
-#: .\Product\admin.py:11 .\Product\models.py:23
+#: .\Product\admin.py:12 .\Product\models.py:79
 msgid "Services"
 msgstr ""
 
-#: .\Product\admin.py:12 .\Product\models.py:22 .\Product\models.py:66
+#: .\Product\admin.py:13 .\Product\models.py:78 .\Product\models.py:129
 msgid "Service"
 msgstr ""
 
-#: .\Product\admin.py:18
+#: .\Product\admin.py:19
 msgid "Photos"
 msgstr ""
 
-#: .\Product\admin.py:19 .\Product\models.py:86
+#: .\Product\admin.py:20 .\Product\models.py:149
 msgid "Photo"
 msgstr ""
 
-#: .\Product\admin.py:33
+#: .\Product\admin.py:42
 msgid "Get contract"
 msgstr ""
 
-#: .\Product\admin.py:36
+#: .\Product\admin.py:45
 msgid "No contract"
 msgstr ""
 
-#: .\Product\admin.py:45
+#: .\Product\admin.py:54
+msgid "Print"
+msgstr ""
+
+#: .\Product\admin.py:56
 msgid "No QR Code"
 msgstr ""
 
-#: .\Product\admin.py:48
+#: .\Product\admin.py:58
+msgid "QR Code"
+msgstr ""
+
+#: .\Product\admin.py:59
 msgid "Contract"
 msgstr ""
 
-#: .\Product\admin.py:49
+#: .\Product\admin.py:60
 msgid "Total Price"
 msgstr ""
 
-#: .\Product\models.py:7
-msgid "Name"
-msgstr ""
-
 #: .\Product\models.py:8
-msgid "Price"
+msgid "✉️ Not received"
 msgstr ""
 
 #: .\Product\models.py:9
-msgid "Currency"
+msgid "🕒 Received"
 msgstr ""
 
-#: .\Product\models.py:12 .\Product\models.py:35
-msgid "Description"
+#: .\Product\models.py:10
+msgid "🗸 Unapproved"
 msgstr ""
 
-#: .\Product\models.py:36 .\Product\models.py:109
-msgid "Start time"
+#: .\Product\models.py:11
+msgid "✔️ Approved"
 msgstr ""
 
-#: .\Product\models.py:37
-msgid "Finish time"
-msgstr ""
-
-#: .\Product\models.py:55 .\Product\models.py:62 .\Product\models.py:82
-#: .\Product\models.py:99 .\venv\Lib\site-packages\django\forms\formsets.py:484
+#: .\Product\models.py:15 .\Product\models.py:118 .\Product\models.py:125
+#: .\Product\models.py:145
+#: .\venv\Lib\site-packages\django\forms\formsets.py:484
 #: .\venv\Lib\site-packages\django\forms\formsets.py:491
 msgid "Order"
 msgstr ""
 
-#: .\Product\models.py:56
-msgid "Orders"
+#: .\Product\models.py:21
+msgid "Worker"
 msgstr ""
 
-#: .\Product\models.py:74 .\Product\models.py:92
-msgid "OrderImage"
+#: .\Product\models.py:27
+msgid "Status"
 msgstr ""
 
-#: .\Product\models.py:75 .\Product\models.py:93
-msgid "OrderImages"
+#: .\Product\models.py:32 .\Product\models.py:93
+msgid "Received time"
 msgstr ""
 
-#: .\Product\models.py:110
-msgid "End time"
+#: .\Product\models.py:33 .\Product\models.py:94
+msgid "Submission time"
 msgstr ""
 
-#: .\Product\models.py:120
+#: .\Product\models.py:34
+msgid "Approve time"
+msgstr ""
+
+#: .\Product\models.py:58
 msgid "Work"
 msgstr ""
 
-#: .\Product\models.py:121
+#: .\Product\models.py:59
 msgid "Works"
 msgstr ""
 
-#: .\config\settings.py:121
+#: .\Product\models.py:63
+msgid "Name"
+msgstr ""
+
+#: .\Product\models.py:64
+msgid "Price"
+msgstr ""
+
+#: .\Product\models.py:65
+msgid "Currency"
+msgstr ""
+
+#: .\Product\models.py:68 .\Product\models.py:92
+msgid "Description"
+msgstr ""
+
+#: .\Product\models.py:85
+msgid "Customer"
+msgstr ""
+
+#: .\Product\models.py:119
+msgid "Orders"
+msgstr ""
+
+#: .\Product\models.py:137
+msgid "OrderImage"
+msgstr ""
+
+#: .\Product\models.py:138
+msgid "OrderImages"
+msgstr ""
+
+#: .\Product\models.py:155
+msgid "Order photo"
+msgstr ""
+
+#: .\Product\models.py:156
+msgid "Order photos"
+msgstr ""
+
+#: .\config\settings.py:123 .\templates\order_detail.html:41
 msgid "English"
 msgstr ""
 
-#: .\config\settings.py:122
+#: .\config\settings.py:124 .\templates\order_detail.html:42
 msgid "Uzbek"
 msgstr ""
 
-#: .\config\settings.py:123
+#: .\config\settings.py:125 .\templates\order_detail.html:43
 msgid "Russian"
+msgstr ""
+
+#: .\templates\order_detail.html:8 .\templates\order_detail.html:52
+msgid "Order Details"
+msgstr ""
+
+#: .\templates\order_detail.html:55
+msgid "Order Information"
+msgstr ""
+
+#: .\templates\order_detail.html:56
+msgid "Start Time:"
+msgstr ""
+
+#: .\templates\order_detail.html:57
+msgid "Finish Time:"
+msgstr ""
+
+#: .\templates\order_detail.html:58
+msgid "Description:"
+msgstr ""
+
+#: .\templates\order_detail.html:65
+msgid "Approve Work"
+msgstr ""
+
+#: .\templates\order_detail.html:69
+msgid "Status: Not Received"
+msgstr ""
+
+#: .\templates\order_detail.html:71
+msgid "Status: Received"
+msgstr ""
+
+#: .\templates\order_detail.html:73
+msgid "Status: Approved"
+msgstr ""
+
+#: .\templates\order_detail.html:80
+msgid "Accept Order"
+msgstr ""
+
+#: .\templates\order_detail.html:86
+msgid "Cancel"
+msgstr ""
+
+#: .\templates\order_detail.html:90
+msgid "Mark as Finished"
+msgstr ""
+
+#: .\templates\order_detail.html:94
+msgid "Work is unapproved. Waiting for review."
+msgstr ""
+
+#: .\templates\order_detail.html:96
+msgid "Work Approved! Thank you!"
+msgstr ""
+
+#: .\templates\order_detail.html:101
+msgid "Order Photos"
+msgstr ""
+
+#: .\templates\order_detail.html:105
+msgid "Order Image"
+msgstr ""
+
+#: .\templates\order_detail.html:108
+msgid "No photos uploaded for this order."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\contrib\messages\apps.py:16

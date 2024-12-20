@@ -22,16 +22,16 @@ class OrderImageInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'customer', 'status_display', 'total_price_display', 'start_time', 'finish_time', "qr_code_preview", "get_contract")
-    search_fields = ('customer__full_name', 'customer__phone', 'customer__extra_phone', 'description')
-    list_filter = ('start_time', 'finish_time')
+    list_display = ('id', 'customer', 'status_display', 'total_price_display', 'received_time', 'submission_time', "qr_code_preview", "get_contract")
+    search_fields = ('customer__username', 'customer__first_name', 'customer__last_name', 'customer__main_phone', 'customer__extra_phone', 'description')
+    list_filter = ('received_time', 'submission_time')
     inlines = (OrderServiceInline, OrderImageInline)
 
     def status_display(self, obj):
-        if obj.status:
-            return format_html(f'<span style="color: green; font-weight: bold;">{_("✔ Done")}</span>')
-        else:
-            return format_html(f'<span style="color: red; font-weight: bold;">{_("✘ Pending")}</span>')
+        work = obj.works.order_by('-status').first()
+        if not work:
+            return Work.Status(0).label
+        return Work.Status(work.status).label
 
     status_display.short_description = "Status"
 
@@ -51,11 +51,11 @@ class OrderAdmin(admin.ModelAdmin):
                 f'<img src="{obj.qr_code.url}" style="width: 50px; height: 50px;" alt="QR Code" />'
                 f'</a><br>'
                 f'<a href="javascript:void(0);" onclick="window.open(\'{obj.qr_code.url}\', \'_blank\').print();">'
-                f'Print</a>'
+                f'{_("Print")}</a>'
             )
-        return "No QR Code"
+        return _("No QR Code")
 
-    qr_code_preview.short_description = "QR Code"
+    qr_code_preview.short_description = _("QR Code")
     get_contract.short_description = _("Contract")
     Order.total_price_display.fget.short_description = _("Total Price")
 
@@ -69,7 +69,7 @@ class ServiceAdmin(admin.ModelAdmin):
 
 @admin.register(Work)
 class WorkAdmin(admin.ModelAdmin):
-    list_display = ('worker', 'order__id', 'status', 'start_time', 'finish_time', 'approve_time')
+    list_display = ('worker', 'order__id', 'status', 'received_time', 'submission_time', 'approve_time')
     search_fields = ('worker__full_name', 'order__customer__full_name',
                      'worker__phone', 'order__customer__phone')
-    list_filter = ('status', 'start_time', 'finish_time')
+    list_filter = ('status', 'received_time', 'submission_time')

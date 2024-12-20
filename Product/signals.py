@@ -37,7 +37,7 @@ def generate_qr_code(sender, instance, created, **kwargs):
     try:
         font = ImageFont.truetype("arial.ttf", font_size)
     except IOError:
-        font = ImageFont.load_default()
+        font = ImageFont.load_default(font_size)
 
     order_id_text = f"ID: {instance.id}"
 

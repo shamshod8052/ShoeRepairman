@@ -23,6 +23,7 @@ ALLOWED_HOSTS = ['*']
 SITE_DOMAIN = env.str('SITE_DOMAIN')
 CSRF_TRUSTED_ORIGINS = [SITE_DOMAIN]
 DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800 # 50mb
+AUTH_USER_MODEL = 'Person.CustomUser'
 
 
 # Application definition
@@ -221,7 +222,7 @@ JAZZMIN_SETTINGS = {
     "hide_apps": [],
 
     # Hide these models when generating side menu (e.g auth.user)
-    "hide_models": ['auth.Group'],
+    "hide_models": [],
 
     # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
     "order_with_respect_to": [
