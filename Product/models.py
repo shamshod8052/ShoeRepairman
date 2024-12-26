@@ -1,103 +1,85 @@
 from django.db import models
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
-class Work(models.Model):
-    class Status(models.IntegerChoices):
-        NOT_RECEIVED = 0, _("✉️ Not received")
-        RECEIVED = 1, _("🕒 Received")
-        UNAPPROVED = 2, _("🗸 Unapproved")
-        APPROVED = 3, _("✔️ Approved")
+class Request(models.Model):
+    customer = models.ForeignKey(
+        'Person.Customer',
+        verbose_name=_('Customer'),
+        on_delete=models.CASCADE,
+        related_name='requests',
+    )
+    manager = models.ForeignKey(
+        'Person.CustomUser',
+        verbose_name=_('Manager'),
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='request_managers',
+        editable=False,
+    )
+    initial_payment = models.DecimalField(
+        verbose_name=_('Initial payment(UZS)'),
+        max_digits=10, decimal_places=0,
+        default=0,
+    )
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
 
-    order = models.ForeignKey(
+    def __str__(self):
+        return self.customer.get_full_name()
+
+    class Meta:
+        verbose_name = _('Request')
+        verbose_name_plural = _('Requests')
+
+
+class RequestOrder(models.Model):
+    request = models.ForeignKey(
+        Request,
+        verbose_name=_('Request'),
+        on_delete=models.CASCADE,
+        related_name='request_orders',
+    )
+    order = models.OneToOneField(
         'Order',
         verbose_name=_("Order"),
         on_delete=models.CASCADE,
-        related_name='works'
+        related_name='request_order'
     )
-    worker = models.ForeignKey(
-        'Person.CustomUser',
-        verbose_name=_("Worker"),
-        on_delete=models.CASCADE,
-        related_name='works',
-        limit_choices_to={'user_type': 'worker', 'is_active': True},
-    )
-    status = models.IntegerField(
-        _("Status"),
-        choices=Status.choices,
-        default=Status.NOT_RECEIVED,
-        editable=False
-    )
-    received_time = models.DateTimeField(_("Received time"), auto_now_add=True)
-    submission_time = models.DateTimeField(_("Submission time"), null=True, blank=True, editable=False)
-    approve_time = models.DateTimeField(_("Approve time"), null=True, blank=True, editable=False)
-
-    def received(self):
-        self.status = self.Status.RECEIVED
-        self.save()
-
-    def finished(self):
-        self.finish_time = timezone.now()
-        self.status = self.Status.UNAPPROVED
-        self.save()
-
-    @property
-    def is_finished(self):
-        return self.status in [self.Status.UNAPPROVED, self.Status.APPROVED]
-
-    def approved(self):
-        self.approve_time = timezone.now()
-        self.status = self.Status.APPROVED
-        self.save()
 
     def __str__(self):
-        return f"{self.worker.get_full_name()} - {self.order.id}"
+        return f"{self.request}"
 
     class Meta:
-        verbose_name = _("Work")
-        verbose_name_plural = _("Works")
-
-
-class Service(models.Model):
-    name = models.CharField(_('Name'), max_length=255)
-    price = models.PositiveIntegerField(_('Price'))
-    currency = models.CharField(_("Currency"), max_length=3,
-                                choices=[('UZS', 'UZS')],
-                                default='UZS')
-    description = models.TextField(_('Description'), null=True, blank=True)
-
-    @property
-    def price_display(self):
-        return f"{self.price} {self.currency}"
-
-    def __str__(self):
-        return f"{self.name} - {self.price} {self.currency}"
-
-    class Meta:
-        verbose_name = _("Service")
-        verbose_name_plural = _("Services")
+        verbose_name = _('Request order')
+        verbose_name_plural = _('Request orders')
 
 
 class Order(models.Model):
-    customer = models.ForeignKey(
-        'Person.CustomUser',
-        verbose_name=_('Customer'),
-        on_delete=models.CASCADE,
-        related_name='orders',
-        limit_choices_to={'user_type': 'customer', 'is_active': True},
-    )
+    description = models.TextField(_("Description"), null=True, blank=True)
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+    submission_time = models.DateTimeField(_("Submission time"), null=True, blank=True)
     qr_code = models.ImageField(upload_to='qrcodes/', null=True, blank=True, editable=False)
     contract = models.FileField(upload_to='contracts/', null=True, blank=True, editable=False)
-    description = models.TextField(_("Description"), null=True, blank=True)
-    received_time = models.DateTimeField(_("Received time"), default=timezone.now)
-    submission_time = models.DateTimeField(_("Submission time"))
+
+    @property
+    def last_work(self):
+        work = None
+        if self.works.exists():
+            work = self.works.order_by('-id').first()
+
+        return work
+
+    @property
+    def one_before_last_work(self):
+        work = None
+        if self.works.count() == 2:
+            work = self.works.order_by('-id').all()[1]
+
+        return work
 
     @property
     def status(self):
-        if self.works.filter(status=Work.Status.APPROVED).exists():
-            return True
-        return False
+        return self.works.filter(status=Work.Status.APPROVED).exists()
 
     @property
     def total_price(self):
@@ -105,11 +87,32 @@ class Order(models.Model):
             return sum([s.service.price for s in self.order_services.all()])
         return 0
 
-    @property
     def total_price_display(self):
         if self.order_services.exists():
-            return f"{self.total_price} {self.order_services.first().service.currency}"
+            return f"{self.total_price} UZS"
         return 0
+    total_price_display.short_description = _("Total Price")
+    total_price_display.admin_order_field = 'total_price_annotation'
+
+    @property
+    def received_user(self):
+        work = self.works.filter(status=Work.Status.NOT_RECEIVED).order_by('-created_at').first()
+        return work.user if work else None
+
+    @property
+    def done_user(self):
+        work = self.works.filter(status=Work.Status.DONE).order_by('-created_at').first()
+        return work.user if work else None
+
+    @property
+    def rejected_user(self):
+        work = self.works.filter(status=Work.Status.REJECTED).order_by('-created_at').first()
+        return work.user if work else None
+
+    @property
+    def approved_user(self):
+        work = self.works.filter(status=Work.Status.APPROVED).order_by('-created_at').first()
+        return work.user if work else None
 
     def __str__(self):
         return f"{self.id}"
@@ -119,23 +122,48 @@ class Order(models.Model):
         verbose_name_plural = _("Orders")
 
 
+class Service(models.Model):
+    name = models.CharField(_('Name'), max_length=255)
+    price = models.DecimalField(
+        verbose_name=_('Price(UZS)'),
+        max_digits=10, decimal_places=0,
+        default=0,
+    )
+    description = models.TextField(_('Description'), null=True, blank=True)
+
+    def price_display(self):
+        return f"{self.price}"
+    price_display.short_description = _("Price")
+    price_display.admin_order_field = "price"
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _("Service")
+        verbose_name_plural = _("Services")
+
+
 class OrderService(models.Model):
     order = models.ForeignKey(
-        Order,
+        'Order',
         verbose_name=_('Order'),
         on_delete=models.CASCADE,
         related_name='order_services'
     )
-    service = models.ForeignKey(Service, verbose_name=_("Service"),
-                                on_delete=models.CASCADE,
-                                related_name='order_services')
+    service = models.ForeignKey(
+        Service,
+        verbose_name=_("Service"),
+        on_delete=models.CASCADE,
+        related_name='order_services'
+    )
 
     def __str__(self):
-        return f"{self.order.customer.get_full_name()}"
+        return f"{self.order}"
 
     class Meta:
-        verbose_name = _("OrderImage")
-        verbose_name_plural = _("OrderImages")
+        verbose_name = _("Order service")
+        verbose_name_plural = _("Order services")
         unique_together = ('order', 'service')
 
 
@@ -144,13 +172,56 @@ class OrderImage(models.Model):
         Order,
         verbose_name=_('Order'),
         on_delete=models.CASCADE,
-        related_name='photos'
+        related_name='order_images'
     )
     photo = models.ImageField(_("Photo"), upload_to='photos/')
 
     def __str__(self):
-        return f"{self.order.customer.get_full_name()}"
+        return f"{self.order}"
 
     class Meta:
-        verbose_name = _("Order photo")
-        verbose_name_plural = _("Order photos")
+        verbose_name = _("Order image")
+        verbose_name_plural = _("Order images")
+
+
+class Work(models.Model):
+    class Status(models.IntegerChoices):
+        NOT_RECEIVED = 0, _("✉️ Not received")
+        IN_PROCESS = 1, _("🕒 In process")
+        DONE = 2, _("🗸 Done")
+        REJECTED = 3, _("❗️ Rejected")
+        APPROVED = 4, _("✔️ Approved")
+
+    order = models.ForeignKey(
+        'Order',
+        verbose_name=_("Order"),
+        on_delete=models.CASCADE,
+        related_name='works'
+    )
+    user = models.ForeignKey(
+        'Person.CustomUser',
+        verbose_name=_("User"),
+        on_delete=models.CASCADE,
+        related_name='works',
+        limit_choices_to={'is_active': True},
+    )
+    for_user_id = models.IntegerField(
+        verbose_name=_("For user"),
+        null=True,
+        editable=False,
+    )
+    status = models.IntegerField(
+        _("Status"),
+        choices=Status.choices,
+        default=Status.NOT_RECEIVED,
+        editable=False
+    )
+
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.get_full_name()} - {self.order.id}"
+
+    class Meta:
+        verbose_name = _("Work")
+        verbose_name_plural = _("Works")

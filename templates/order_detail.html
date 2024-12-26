@@ -52,13 +52,23 @@
             </div>
             <div class="card-body">
                 <h4>{% trans "Order Information" %}</h4>
-                <p><strong>{% trans "Start Time:" %}</strong> {{ order.received_time }}</p>
-                <p><strong>{% trans "Finish Time:" %}</strong> {{ order.submission_time }}</p>
+                <p><strong>{% trans "Start Time:" %}</strong> {{ order.created_at }}</p>
+                <p><strong>{% trans "Finish Time:" %}</strong> 
+                    {% if order.submission_time %}
+                        {{ order.submission_time }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </p>
                 <p><strong>{% trans "Description:" %}</strong> {{ order.description }}</p>
 
                 <div class="text-center mb-4">
-                    {% if is_admin or is_manager %}
-                        {% if work_status == 2 %}  {# Unapproved #}
+                    {% if user.is_manager %}
+                        {% if work_status == 2 %}  {# Done #}
+                            <form method="post" action="{% url 'reject_work' order.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">{% trans "Reject Work" %}</button>
+                            </form>
                             <form method="post" action="{% url 'approve_work' order.id %}">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-primary">{% trans "Approve Work" %}</button>
@@ -66,42 +76,65 @@
                         {% else %}
                             {% if work_status == 0 %}  {# Not Received #}
                                 <div class="alert alert-info">{% trans "Status: Not Received" %}</div>
-                            {% elif work_status == 1 %}  {# Received #}
-                                <div class="alert alert-warning">{% trans "Status: Received" %}</div>
-                            {% elif work_status == 3 %}  {# Approved #}
+                            {% elif work_status == 1 %}  {# In process #}
+                                <div class="alert alert-warning">{% trans "Status: In process" %}</div>
+                            {% elif work_status == 3 %}  {# Rejected #}
+                                <div class="alert alert-secondary">{% trans "Status: Rejected" %}</div>
+                            {% elif work_status == 4 %}  {# Approved #}
                                 <div class="alert alert-success">{% trans "Status: Approved" %}</div>
                             {% endif %}
                         {% endif %}
-                    {% else %}
-                        {% if work_status == null or work_status == 0 %}
+                    {% elif user.is_worker %}
+                        {% if work_status == 0 or work_status == 3 %}
+                            {% if work_status == 3 %}
+                                {% if is_users_before_work %}
+                                    <div class="alert alert-secondary">{% trans "Status: Rejected" %}</div>
+                                {% endif %}
+                            {% endif %}
                             <form method="post" action="{% url 'accept_order' order.id %}">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-success">{% trans "Accept Order" %}</button>
                             </form>
                         {% elif work_status == 1 %}
-                            <div class="btn-group">
-                                <form method="post" action="{% url 'cancel_order' order.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-warning">{% trans "Cancel" %}</button>
-                                </form>
-                                <form method="post" action="{% url 'success_order' order.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-success">{% trans "Mark as Finished" %}</button>
-                                </form>
-                            </div>
+                            {% if is_users_work %}
+                                <div class="btn-group">
+                                    <form method="post" action="{% url 'cancel_order' order.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-warning">{% trans "Cancel" %}</button>
+                                    </form>
+                                    <form method="post" action="{% url 'success_order' order.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success">{% trans "Mark as Finished" %}</button>
+                                    </form>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning">{% trans "Status: In process" %}</div>
+                            {% endif %}
                         {% elif work_status == 2 %}
                             <div class="alert alert-warning">{% trans "Work is unapproved. Waiting for review." %}</div>
-                        {% elif work_status == 3 %}
+                        {% elif work_status == 4 %}
                             <div class="alert alert-success">{% trans "Work Approved! Thank you!" %}</div>
+                        {% endif %}
+                    {% else %}
+                        {% if work_status == 0 %}  {# Not Received #}
+                                <div class="alert alert-info">{% trans "Status: Not Received" %}</div>
+                            {% elif work_status == 1 %}  {# In process #}
+                                <div class="alert alert-warning">{% trans "Status: In process" %}</div>
+                            {% elif work_status == 2 %}  {# Done #}
+                                <div class="alert alert-success">{% trans "Status: Done, but not approved" %}</div>
+                            {% elif work_status == 3 %}  {# Rejected #}
+                                <div class="alert alert-secondary">{% trans "Status: Rejected" %}</div>
+                            {% elif work_status == 4 %}  {# Approved #}
+                                <div class="alert alert-success">{% trans "Status: Approved" %}</div>
                         {% endif %}
                     {% endif %}
                 </div>
 
                 <h4>{% trans "Order Photos" %}</h4>
                 <div class="order-images">
-                    {% if order.photos.all %}
-                        {% for image in order.photos.all %}
-                            <img src="{{ image.photo.url }}" alt="{% trans 'Order Image' %}" class="img-thumbnail">
+                    {% if order.order_images.all %}
+                        {% for order_images in order.order_images.all %}
+                            <img src="{{ order_images.photo.url }}" alt="{% trans 'Order Image' %}" class="img-thumbnail">
                         {% endfor %}
                     {% else %}
                         <p class="text-muted">{% trans "No photos uploaded for this order." %}</p>
