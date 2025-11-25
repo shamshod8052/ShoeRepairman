@@ -71,11 +71,16 @@ class CustomUserAdmin(UserAdmin, admin.ModelAdmin):
             },
         ),
     )
-    list_display = ('main_phone', 'get_full_name', 'is_staff', 'is_active')
+    list_display = ('main_phone', 'get_full_name', 'groups_text', 'is_staff', 'is_active')
     list_filter = ('groups', 'is_staff', 'is_active')
     search_fields = ('main_phone', 'first_name', 'last_name', 'extra_phone')
     ordering = ()
     inlines = (RequestInline, WorkInline)
+
+    def groups_text(self, obj):
+        return ', '.join(obj.groups.values_list('name', flat=True))
+
+    groups_text.short_description = _("Groups")
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)

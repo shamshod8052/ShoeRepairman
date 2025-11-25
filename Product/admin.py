@@ -23,7 +23,7 @@ class RequestAdmin(admin.ModelAdmin):
         'initial_payment', 'customer__full_name', 'customer__main_phone', 'customer__extra_phone',
         'manager__first_name', 'manager__last_name', 'manager__main_phone', 'manager__extra_phone'
     )
-    list_filter = ('customer', 'manager', ('created_at', DateRangeFilter))
+    list_filter = ('manager', ('created_at', DateRangeFilter))
     inlines = (RequestOrderInline,)
 
     def save_model(self, request, obj, form, change):

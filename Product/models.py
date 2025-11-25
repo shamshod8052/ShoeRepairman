@@ -72,7 +72,7 @@ class Order(models.Model):
     @property
     def one_before_last_work(self):
         work = None
-        if self.works.count() == 2:
+        if self.works.count() >= 2:
             work = self.works.order_by('-id').all()[1]
 
         return work
