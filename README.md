@@ -4,13 +4,14 @@
 
 ---
 
-## 📖 Description
+## 📖 Features
 
 Ximchistka CRM orqali siz:  
 - Admin, Manager va Worker kabi foydalanuvchi rollarini boshqarishingiz mumkin  
 - Mijozlar va ularning buyurtmalarini kuzatishingiz mumkin  
 - Har bir buyurtma uchun avtomatik QR kodlar yaratiladi va kiyim yoki oyoq kiyimga biriktiriladi  
-- Workerlar QR kod orqali ishni qabul qiladi, jarayonlarni kuzatadi va ishni yakunlaydi  
+- Workerlar QR kod orqali ishni qabul qiladi, jarayonlar bosqichlarini yangilaydi va ishni yakunlaydi
+- QR code orqali ish jarayoni bosqichi oson ko'riladi  
 - Barcha ishlar platforma orqali to‘liq nazorat qilinadi
 
 ---
@@ -40,16 +41,6 @@ Ximchistka CRM orqali siz:
 - **django-jazzmin-admin-rangefilter 1.0.0**  
 - **qrcode 8.0**  
 - **PostgreSQL**
-
----
-
-## 🧩 Features
-
-- ✅ Rollarga mos foydalanuvchi boshqaruvi (Admin, Manager, Worker)  
-- ✅ Mijozlar va buyurtmalarni alohida saqlash  
-- ✅ QR kodlar orqali ish jarayonini kuzatish va boshqarish  
-- ✅ Workerlar ishni qabul qilish, holatini yangilash va yakunlash  
-- ✅ Platforma orqali to‘liq nazorat
 
 ---
 
